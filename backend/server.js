@@ -111,34 +111,54 @@ app.get('/accounts/', async (req, res) => {
   } 
 });
 
-// POST: Create a new customer account
-app.post('/accounts/', async (req, res) => {
+
+
+// app.post('/accounts/',async(request,response)=>{
+//     const {firstname,lastname,dateOfBirth,gender,address,phoneNumber,email,aadharNumber} = request.body
+//     console.log(firstname,lastname,dateOfBirth,phoneNumber);
+//     const insertQuery = `INSERT INTO Customers(FirstName,LastName,DOB,Gender,Address,PhoneNumber,Email,AadhaarNumber)
+//         VALUES('${firstname}','${lastname}','${dateOfBirth}','${gender}','${address}','${phoneNumber}','${email}','${aadharNumber}');`;
+//         const result = await db.run(insertQuery);
+//         response.status(201).json({message:'Customer account created'})
+  
+   
+// })
+  
+
+
+app.post('/accounts/', async (request, response) => {
     try {
-      const { firstname, lastname, age, mobileNumber, dateOfBirth, email, accountType } = req.body;
+      const {
+        firstname,
+        lastname,
+        dateOfBirth,
+        gender,
+        address,
+        phoneNumber,
+        email,
+        aadharNumber,
+      } = request.body;
   
-      // Validate required fields
-      if (!firstname || !lastname || !age || !mobileNumber || !dateOfBirth || !email || !accountType) {
-        return res.status(400).json({ error: 'All fields are required' });
-      }
+      console.log(firstname, lastname, dateOfBirth, phoneNumber);
   
-      // Insert customer into the database
       const insertQuery = `
-        INSERT INTO Customers (FirstName, LastName, Age, PhoneNumber, DOB, Email, AccountType)
-        VALUES (?, ?, ?, ?, ?, ?, ?);
+        INSERT INTO Customers(FirstName, LastName, DOB, Gender, Address, PhoneNumber, Email, AadhaarNumber)
+        VALUES('${firstname}', '${lastname}', '${dateOfBirth}', '${gender}', '${address}', '${phoneNumber}', '${email}', '${aadharNumber}');
       `;
-      await db.run(insertQuery, [firstname, lastname, age, mobileNumber, dateOfBirth, email, accountType]);
   
-      // Fetch the newly created customer
-      const newCustomerQuery = `SELECT * FROM Customers WHERE PhoneNumber = ?;`;
-      const newCustomer = await db.get(newCustomerQuery, [mobileNumber]);
+      const result = await db.run(insertQuery);
   
-      res.status(201).json({ message: 'Customer account created', customer: newCustomer });
+      response.status(201).json({ message: 'Customer account created' });
     } catch (error) {
-      console.error('Error creating account:', error);
-      res.status(500).json({ error: 'Failed to create account' });
+      console.error('Error creating customer account:', error.message);
+  
+      // Error response
+      response.status(500).json({
+        error: 'Failed to create customer account',
+        details: error.message,
+      });
     }
   });
-  
   
 
 // 404 Error handling
