@@ -113,31 +113,33 @@ app.get('/accounts/', async (req, res) => {
 
 // POST: Create a new customer account
 app.post('/accounts/', async (req, res) => {
-  try {
-    const { name, age, mobileNumber, dateOfBirth, email, accountType } = req.body;
-
-    // Validate required fields
-    if (!name || !age || !mobileNumber || !dateOfBirth || !email || !accountType) {
-      return res.status(400).json({ error: 'All fields are required' });
+    try {
+      const { firstname, lastname, age, mobileNumber, dateOfBirth, email, accountType } = req.body;
+  
+      // Validate required fields
+      if (!firstname || !lastname || !age || !mobileNumber || !dateOfBirth || !email || !accountType) {
+        return res.status(400).json({ error: 'All fields are required' });
+      }
+  
+      // Insert customer into the database
+      const insertQuery = `
+        INSERT INTO Customers (FirstName, LastName, Age, PhoneNumber, DOB, Email, AccountType)
+        VALUES (?, ?, ?, ?, ?, ?, ?);
+      `;
+      await db.run(insertQuery, [firstname, lastname, age, mobileNumber, dateOfBirth, email, accountType]);
+  
+      // Fetch the newly created customer
+      const newCustomerQuery = `SELECT * FROM Customers WHERE PhoneNumber = ?;`;
+      const newCustomer = await db.get(newCustomerQuery, [mobileNumber]);
+  
+      res.status(201).json({ message: 'Customer account created', customer: newCustomer });
+    } catch (error) {
+      console.error('Error creating account:', error);
+      res.status(500).json({ error: 'Failed to create account' });
     }
-
-    // Insert customer into the database
-    const insertQuery = `
-      INSERT INTO Customers (FirstName, DOB, PhoneNumber, Email)
-      VALUES (?, ?, ?, ?);
-    `;
-    await db.run(insertQuery, [name, dateOfBirth, mobileNumber, email]);
-
-    // Fetch the newly created customer (assuming `CustomerID` is auto-incremented)
-    const newCustomerQuery = `SELECT * FROM Customers WHERE PhoneNumber = ?;`;
-    const newCustomer = await db.get(newCustomerQuery, [mobileNumber]);
-
-    res.status(201).json({ message: 'Customer account created', customer: newCustomer });
-  } catch (error) {
-    console.error('Error creating account:', error);
-    res.status(500).json({ error: 'Failed to create account' });
-  }
-});
+  });
+  
+  
 
 // 404 Error handling
 app.use((req, res) => {
