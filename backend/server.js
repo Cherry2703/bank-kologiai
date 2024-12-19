@@ -63,6 +63,7 @@ const cors = require('cors');
 const path = require('path');
 const { open } = require('sqlite');
 const sqlite3 = require('sqlite3');
+const morgan = require('morgan')
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -71,6 +72,7 @@ const dbPath = path.join(__dirname, './bank-database.db');
 // Middleware
 app.use(express.json());
 app.use(cors());
+app.use(morgan('dev'));
 
 let db;
 
